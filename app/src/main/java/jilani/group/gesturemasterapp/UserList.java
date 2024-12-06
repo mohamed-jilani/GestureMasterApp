@@ -1,6 +1,7 @@
 package jilani.group.gesturemasterapp;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,7 +26,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -79,14 +79,29 @@ public class UserList extends AppCompatActivity {
         actions.add(new ActionItem("Open the camera", 0, R.drawable.camera));
         actions.add(new ActionItem("Turn on the flashlight", 0, R.drawable.ic_flashlight));
         actions.add(new ActionItem("Take a screenshot", 0, R.drawable.ic_screenshot));
+        actions.add(new ActionItem("Enable/Disable WIFI", 0, R.drawable.ic_wifi));
         actions.add(new ActionItem("Record audio", 0, R.drawable.ic_microphone));
         actions.add(new ActionItem("Open the email box", 0, R.drawable.ic_email));
-        actions.add(new ActionItem("Turn off the screen", 0, R.drawable.ic_screen_off));
         actions.add(new ActionItem("Send SMS", 0, R.drawable.ic_sms));
+        actions.add(new ActionItem("Play Favorite Music", 0, R.drawable.ic_music));
 
         listView = findViewById(R.id.list_actions);
         adapter = new ActionAdapter(this, actions);
         listView.setAdapter(adapter);
+
+        // Supprimez l'appel redondant à setOnItemClickListener
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            if (position >= 7) {
+                // Si "Play Favorite Music" est cliqué, on redirige vers MusicIntoActivity
+                if (position == 7) {
+                    Intent musicIntent = new Intent(UserList.this, MusicIntoActivity.class);
+                    startActivity(musicIntent);
+                }
+            } else {
+                // Sinon, afficher le dialogue pour configurer les frottements
+                showEditDialog(position);
+            }
+        });
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -96,7 +111,6 @@ public class UserList extends AppCompatActivity {
             }
         }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> showEditDialog(position));
         checkPermissions();
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(new View.OnClickListener() {
@@ -106,12 +120,7 @@ public class UserList extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-
-
-
     }
-
     private void checkPermissions() {
         // Liste des permissions nécessaires
         String[] permissions = {
@@ -341,18 +350,21 @@ public class UserList extends AppCompatActivity {
 
     //SMS
     private void sendSMS() {
-        String phoneNumber = "1234567890";
+        String phoneNumber = "53107137";
         String message = "Test de l'application SMS";
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-            Toast.makeText(this, "SMS envoyé", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Permission SMS non accordée", Toast.LENGTH_SHORT).show();
+        // Créer un Intent pour ouvrir l'application de messagerie
+        Intent smsIntent = new Intent(Intent.ACTION_VIEW);
+        smsIntent.setData(Uri.parse("sms:" + phoneNumber)); // Numéro de téléphone prérempli
+        smsIntent.putExtra("sms_body", message); // Message prérempli
+
+        try {
+            // Démarrer l'application de messagerie
+            startActivity(smsIntent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "Aucune application de messagerie trouvée", Toast.LENGTH_SHORT).show();
         }
     }
-
     //Record audio
     private void recordAudio() {
         // Vérification des permissions d'enregistrement audio

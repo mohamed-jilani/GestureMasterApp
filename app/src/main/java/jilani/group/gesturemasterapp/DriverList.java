@@ -8,7 +8,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,7 +36,6 @@ public class DriverList extends AppCompatActivity {
     private long lastUpdate = 0;
     private static final int SHAKE_THRESHOLD = 800;
     private static final int PERMISSION_REQUEST_CODE = 1;
-    private MediaPlayer mediaPlayer;
     private ListView listView;
     private ActionAdapter adapter;
     private ArrayList<ActionItem> actions;
