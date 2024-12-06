@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -26,6 +27,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -79,8 +81,6 @@ public class UserList extends AppCompatActivity {
         actions.add(new ActionItem("Open the camera", 0, R.drawable.camera));
         actions.add(new ActionItem("Turn on the flashlight", 0, R.drawable.ic_flashlight));
         actions.add(new ActionItem("Take a screenshot", 0, R.drawable.ic_screenshot));
-        actions.add(new ActionItem("Enable/Disable WIFI", 0, R.drawable.ic_wifi));
-        actions.add(new ActionItem("Record audio", 0, R.drawable.ic_microphone));
         actions.add(new ActionItem("Open the email box", 0, R.drawable.ic_email));
         actions.add(new ActionItem("Send SMS", 0, R.drawable.ic_sms));
         actions.add(new ActionItem("Play Favorite Music", 0, R.drawable.ic_music));
@@ -91,9 +91,9 @@ public class UserList extends AppCompatActivity {
 
         // Supprimez l'appel redondant à setOnItemClickListener
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (position >= 7) {
+            if (position >= 5) {
                 // Si "Play Favorite Music" est cliqué, on redirige vers MusicIntoActivity
-                if (position == 7) {
+                if (position == 5) {
                     Intent musicIntent = new Intent(UserList.this, MusicIntoActivity.class);
                     startActivity(musicIntent);
                 }
@@ -124,20 +124,20 @@ public class UserList extends AppCompatActivity {
     private void checkPermissions() {
         // Liste des permissions nécessaires
         String[] permissions = {
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CALL_PHONE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.WRITE_SETTINGS,
-                Manifest.permission.INTERNET,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.MANAGE_OWN_CALLS,
-                Manifest.permission.SYSTEM_ALERT_WINDOW,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.CALL_PHONE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.SEND_SMS,
+                android.Manifest.permission.ACCESS_NETWORK_STATE,
+                android.Manifest.permission.CHANGE_WIFI_STATE,
+                android.Manifest.permission.WRITE_SETTINGS,
+                android.Manifest.permission.INTERNET,
+                android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                android.Manifest.permission.ACCESS_WIFI_STATE,
+                android.Manifest.permission.MANAGE_OWN_CALLS,
+                android.Manifest.permission.SYSTEM_ALERT_WINDOW,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
         };
 
         // Liste des permissions à demander
@@ -221,15 +221,9 @@ public class UserList extends AppCompatActivity {
                 takeScreenshot();
                 break;
             case 3:
-                toggleWiFi();
-                break;
-            case 4:
-                recordAudio();
-                break;
-            case 5:
                 openEmail();
                 break;
-            case 6:
+            case 4:
                 sendSMS();
                 break;
 
@@ -242,7 +236,7 @@ public class UserList extends AppCompatActivity {
 
     //Camera
     private void openCamera() {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         } else {
@@ -324,16 +318,6 @@ public class UserList extends AppCompatActivity {
     }
 
 
-    //WIFI
-    private void toggleWiFi() {
-        WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        if (wifiManager != null) {
-            boolean isEnabled = wifiManager.isWifiEnabled();
-            wifiManager.setWifiEnabled(!isEnabled);
-            Toast.makeText(this, "Wi-Fi " + (isEnabled ? "désactivé" : "activé"), Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
 
     //Email
@@ -368,7 +352,7 @@ public class UserList extends AppCompatActivity {
     //Record audio
     private void recordAudio() {
         // Vérification des permissions d'enregistrement audio
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Permission d'enregistrement audio refusée", Toast.LENGTH_SHORT).show();
             return; // Retourner si la permission est refusée
         }
@@ -440,7 +424,3 @@ public class UserList extends AppCompatActivity {
 
 
 }
-
-
-
-

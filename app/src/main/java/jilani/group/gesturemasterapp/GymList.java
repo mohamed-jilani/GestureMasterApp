@@ -11,12 +11,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +46,6 @@ public class GymList extends AppCompatActivity {
 
         frottementActions = new HashMap<>();
         actions = new ArrayList<>();
-        actions.add(new ActionItem("Launch An Application", 0, R.drawable.launch));
         actions.add(new ActionItem("Play Favorite Music", 0, R.drawable.ic_music));
         actions.add(new ActionItem("Squat", 0, R.drawable.squat));
         actions.add(new ActionItem("Yoga", 0, R.drawable.yoga));
@@ -56,22 +57,22 @@ public class GymList extends AppCompatActivity {
 
         // Gestion des clics sur la liste
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (position >= 1) {
+            if (position >= 0) {
                 // Si un des éléments Squat, Yoga ou Course est cliqué, on redirige vers l'activité correspondante
                 switch (position) {
-                    case 1:
+                    case 0:
                         Intent musicIntent = new Intent(GymList.this, MusicIntoActivity.class);
                         startActivity(musicIntent);
                         break;
-                    case 2:
+                    case 1:
                         Intent squatIntent = new Intent(GymList.this, squat.class);
                         startActivity(squatIntent);
                         break;
-                    case 3:
+                    case 2:
                         Intent yogaIntent = new Intent(GymList.this, yoga.class);
                         startActivity(yogaIntent);
                         break;
-                    case 4:
+                    case 3:
                         Intent courseIntent = new Intent(GymList.this, Course.class);
                         startActivity(courseIntent);
                         break;
@@ -135,7 +136,6 @@ public class GymList extends AppCompatActivity {
     private void executeActionBasedOnFrottementCount() {
         if (frottementActions.containsKey(frottementCount)) {
             int actionPosition = frottementActions.get(frottementCount);
-            performAction(actionPosition);
         } else {
             Toast.makeText(this, "Aucune action assignée pour " + frottementCount + " frottements", Toast.LENGTH_SHORT).show();
         }
@@ -168,40 +168,14 @@ public class GymList extends AppCompatActivity {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
 
-    private void performAction(int position) {
-        switch (position) {
-            case 0:
-                Context context = this;
-                showKeyguard(context);
-                break;
-            case 1:
-                playFavoriteMusic();
-                break;
-            case 2:
-                launchApp();
-                break;
-            default:
-                Toast.makeText(this, "Action non définie", Toast.LENGTH_SHORT).show();
-        }
-    }
+
 
     private void playFavoriteMusic() {
         // Logique pour jouer la musique favorite
         Toast.makeText(this, "Jouer la musique favorite", Toast.LENGTH_SHORT).show();
     }
 
-    private void launchApp() {
-        // Créer un Intent pour afficher une liste des applications compatibles
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setType("application/pdf");  // Remplacez par le type MIME que vous souhaitez explorer
-        Intent chooser = Intent.createChooser(intent, "Choisissez une application pour afficher le fichier");
 
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(chooser); // Lancer l'intent et laisser l'utilisateur choisir l'application
-        } else {
-            Toast.makeText(this, "Aucune application disponible pour ouvrir ce type de contenu", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     private void showEditDialog(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -2,12 +2,14 @@ package jilani.group.gesturemasterapp;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -56,12 +58,9 @@ public class DriverList extends AppCompatActivity {
         frottementActions = new HashMap<>();
         actions = new ArrayList<>();
 
-        // Initialisation des actions
-        actions.add(new ActionItem("Answer the call", 0, R.drawable.ic_call));
-        actions.add(new ActionItem("Play Favorite Music", 1, R.drawable.ic_music));
-        actions.add(new ActionItem("Launch App", 2, R.drawable.launch));
-        actions.add(new ActionItem("Open Google Maps", 3, R.drawable.ic_maps));
-        actions.add(new ActionItem("Send SMS", 4, R.drawable.ic_sms));
+        actions.add(new ActionItem("Open Google Maps", 0, R.drawable.ic_maps));
+        actions.add(new ActionItem("Send SMS", 0, R.drawable.ic_sms));
+        actions.add(new ActionItem("Play Favorite Music", 0, R.drawable.ic_music));
 
         listView = findViewById(R.id.list_actions);
         adapter = new ActionAdapter(this, actions);
@@ -69,9 +68,9 @@ public class DriverList extends AppCompatActivity {
 
         // Supprimez l'appel redondant à setOnItemClickListener
         listView.setOnItemClickListener((parent, view, position, id) -> {
-            if (position >= 1) {
+            if (position >= 2) {
                 // Si "Play Favorite Music" est cliqué, on redirige vers MusicIntoActivity
-                if (position == 1) {
+                if (position == 2) {
                     Intent musicIntent = new Intent(DriverList.this, MusicIntoActivity.class);
                     startActivity(musicIntent);
                 }
@@ -103,23 +102,23 @@ public class DriverList extends AppCompatActivity {
     private void checkPermissions() {
         // Liste des permissions nécessaires
         String[] permissions = {
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CALL_PHONE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.WRITE_SETTINGS,
-                Manifest.permission.INTERNET,
-                Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.MANAGE_OWN_CALLS,
-                Manifest.permission.SYSTEM_ALERT_WINDOW,
+                android.Manifest.permission.CAMERA,
+                android.Manifest.permission.RECORD_AUDIO,
+                android.Manifest.permission.CALL_PHONE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                android.Manifest.permission.SEND_SMS,
+                android.Manifest.permission.ACCESS_NETWORK_STATE,
+                android.Manifest.permission.CHANGE_WIFI_STATE,
+                android.Manifest.permission.WRITE_SETTINGS,
+                android.Manifest.permission.INTERNET,
+                android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                android.Manifest.permission.ACCESS_WIFI_STATE,
+                android.Manifest.permission.MANAGE_OWN_CALLS,
+                android.Manifest.permission.SYSTEM_ALERT_WINDOW,
                 Manifest.permission.READ_MEDIA_AUDIO,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
         };
 
         // Liste des permissions à demander
@@ -193,15 +192,9 @@ public class DriverList extends AppCompatActivity {
     private void performAction(int position) {
         switch (position) {
             case 0:
-                answerCall();
-                break;
-            case 2:
-                launchApp();
-                break;
-            case 3:
                 openGoogleMaps();
                 break;
-            case 4:
+            case 1:
                 sendSMS();
                 break;
             default:
@@ -209,14 +202,7 @@ public class DriverList extends AppCompatActivity {
         }
     }
 
-    private void answerCall() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS) == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Fonctionnalité à implémenter : répondre à un appel", Toast.LENGTH_SHORT).show();
-            // Implémentez le code pour répondre à un appel ici
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ANSWER_PHONE_CALLS}, PERMISSION_REQUEST_CODE);
-        }
-    }
+
 
 
 
@@ -289,59 +275,7 @@ public class DriverList extends AppCompatActivity {
     }
 
 
-    //Lancer App
-    private void launchApp() {
-        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.app");
-        if (launchIntent != null) {
-            startActivity(launchIntent);
-        } else {
-            Toast.makeText(this, "Application non trouvée", Toast.LENGTH_SHORT).show();
-        }
-    }
 
-
-
-    //Record audio
-    private void recordAudio() {
-        // Vérification des permissions d'enregistrement audio
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Permission d'enregistrement audio refusée", Toast.LENGTH_SHORT).show();
-            return; // Retourner si la permission est refusée
-        }
-
-        // Vérification de la permission d'accès au stockage
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Permission d'accès au stockage refusée", Toast.LENGTH_SHORT).show();
-            return; // Retourner si la permission est refusée
-        }
-
-        // Définir le chemin de sortie pour le fichier audio enregistré
-        outputFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/audioRecording.3gp";
-
-        // Initialiser le MediaRecorder
-        mediaRecorder = new MediaRecorder();
-        try {
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC); // Utiliser le microphone pour l'enregistrement
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP); // Format de sortie (ici 3gp)
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB); // Encoder audio (AMR_NB)
-            mediaRecorder.setOutputFile(outputFilePath); // Spécifier le fichier de sortie
-
-            // Préparer le MediaRecorder
-            mediaRecorder.prepare();
-            // Démarrer l'enregistrement
-            mediaRecorder.start();
-            Toast.makeText(this, "Enregistrement commencé...", Toast.LENGTH_SHORT).show();
-
-        } catch (IOException e) {
-            // Log de l'erreur avec un message précis et un Toast générique
-            Log.e("AudioRecord", "Erreur d'enregistrement : " + e.getMessage());
-            Toast.makeText(this, "Erreur d'enregistrement", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            // Log d'une erreur inattendue et affichage d'un Toast générique
-            Log.e("AudioRecord", "Erreur inattendue : " + e.getMessage());
-            Toast.makeText(this, "Erreur d'enregistrement", Toast.LENGTH_SHORT).show();
-        }
-    }
 
 
 
@@ -376,7 +310,3 @@ public class DriverList extends AppCompatActivity {
 
 
 }
-
-
-
-
